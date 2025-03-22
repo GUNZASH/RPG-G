@@ -19,7 +19,7 @@ public class PlayerController : MonoBehaviour
     [Header("ระบบพุ่ง")]
     public float dashSpeed = 15f;
     public float dashTime = 0.2f;
-    public float dashCooldown = 1f;
+    public float dashCooldown = 2f;
     private bool isDashing = false;
     private float nextDashTime = 0f;
 
