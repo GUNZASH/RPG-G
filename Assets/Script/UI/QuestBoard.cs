@@ -10,6 +10,10 @@ public class QuestData
     public string questName; // ชื่อเควส
     public string description; // รายละเอียดเควส
     public Sprite questImage; // ภาพรายละเอียดของเควส
+    public string requiredEnemyTag; // ศัตรูที่ต้องฆ่า (กำหนดใน Inspector)
+    public int requiredAmount; // จำนวนที่ต้องฆ่า
+    public int rewardEXP; // ค่าประสบการณ์ที่ได้รับ
+    public int rewardGold; // ทองที่ได้รับ
 }
 
 public class QuestBoard : MonoBehaviour
@@ -28,6 +32,8 @@ public class QuestBoard : MonoBehaviour
 
     private bool isPlayerInRange = false;
     private int selectedQuestIndex = -1; // เก็บค่า index ของเควสที่ถูกเลือก
+
+    public QuestTracker questTracker; // เชื่อมกับระบบติดตามเควส
 
     private void Start()
     {
@@ -89,8 +95,11 @@ public class QuestBoard : MonoBehaviour
     {
         if (selectedQuestIndex != -1)
         {
-            questButtons[selectedQuestIndex].gameObject.SetActive(false); // ซ่อนเควสที่เลือก
-            questDetailPanel.SetActive(false); // ปิดหน้ารายละเอียด
+            QuestData selectedQuest = questDataList[selectedQuestIndex];
+            QuestTracker.Instance.StartQuest(selectedQuest);
+
+            questButtons[selectedQuestIndex].gameObject.SetActive(false);
+            questDetailPanel.SetActive(false);
         }
     }
 

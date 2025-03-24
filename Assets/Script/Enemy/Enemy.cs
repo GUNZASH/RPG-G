@@ -97,6 +97,7 @@ public class Enemy : MonoBehaviour
 
     void Die()
     {
+        QuestTracker.Instance.EnemyKilled(gameObject.tag); // แจ้งให้ QuestTracker รู้ว่าศัตรูตายแล้ว
         Destroy(gameObject);
         DropItem(); //เผื่อจะทำดร็อปไอเท็ม
     }
