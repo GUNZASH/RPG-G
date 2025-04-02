@@ -35,19 +35,28 @@ public class PlayerController : MonoBehaviour
     public Transform groundCheck;
     public LayerMask groundLayer;
 
+    public bool isAuraBladeActive = false; // เช็คว่าบัฟออร่าดาบทำงานไหม
+
+    private Animator anim;
+
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+        anim = GetComponent<Animator>();
     }
 
     void Update()
     {
         moveInput = Input.GetAxisRaw("Horizontal");
 
+        // อนิเมชั่นเดิน
+        anim.SetBool("isWalking", moveInput != 0 && isGrounded);
+
         //กระโดด
         if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
         {
             rb.velocity = new Vector2(rb.velocity.x, jumpForce);
+            anim.SetTrigger("Jump");
         }
 
         //พุ่ง
@@ -58,16 +67,17 @@ public class PlayerController : MonoBehaviour
 
         //เช็กว่าตัวละครติดกำแพงมั้ย
         bool isTouchingWall = Physics2D.OverlapCircle(wallCheck.position, 0.1f, wallLayer);
-
         //ปีนกำแพง
         if (isTouchingWall && Input.GetKey(KeyCode.Space) && moveInput != 0)
         {
             isWallClimbing = true;
             rb.velocity = new Vector2(rb.velocity.x, wallClimbSpeed);
+            anim.SetBool("isClimbing", true);
         }
         else
         {
             isWallClimbing = false;
+            anim.SetBool("isClimbing", false);
         }
 
         if (isWallClimbing && !isTouchingWall)
@@ -79,6 +89,7 @@ public class PlayerController : MonoBehaviour
         if (Input.GetMouseButtonDown(0) && !isAttacking)
         {
             Attack();
+            anim.SetTrigger("Attack");
         }
 
         if (moveInput > 0 && !isFacingRight)
@@ -117,6 +128,7 @@ public class PlayerController : MonoBehaviour
     void Attack()
     {
         isAttacking = true;
+        anim.SetTrigger("Attack");
         Debug.Log("Player Attack!");
 
         //ตรวจศัตรูที่อยู่ในระยะ
@@ -129,6 +141,18 @@ public class PlayerController : MonoBehaviour
         }
 
         Invoke("ResetAttack", 0.5f);
+    }
+    void OnTriggerEnter(Collider other)
+    {
+        if (isAuraBladeActive && ((1 << other.gameObject.layer) & enemyLayer) != 0)
+        {
+            // ทำให้ศัตรูถอยหลังเล็กน้อย
+            Rigidbody enemyRb = other.GetComponent<Rigidbody>();
+            if (enemyRb)
+            {
+                enemyRb.AddForce(transform.forward * 5f, ForceMode.Impulse);
+            }
+        }
     }
 
     void ResetAttack()

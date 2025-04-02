@@ -4,7 +4,8 @@ using UnityEngine;
 
 public class Enemy : MonoBehaviour
 {
-    [Header("EnemySetting")]
+    [Header("Enemy Setting")]
+    public float detectionRange = 5f; // ระยะที่ศัตรูมองเห็นผู้เล่น
     public float moveSpeed = 3f;
     public float attackRange = 2f;
     public float attackDamage = 10f;
@@ -15,12 +16,18 @@ public class Enemy : MonoBehaviour
     private Transform player;
     private float nextAttackTime = 0f;
 
-    public GameObject dropItemPrefab; //ไอเท็มที่ดร็อป เผื่อจะทำ
-    public Transform dropPoint; //จุดที่ไอเท็มจะตก เผื่อจะทำ
+    public GameObject dropItemPrefab; // ไอเท็มที่ดร็อป เผื่อจะทำ
+    public Transform dropPoint; // จุดที่ไอเท็มจะตก เผื่อจะทำ
+
+    [Header("Patrol Settings")]
+    public float patrolDistance = 3f; // ระยะทางที่เดินไปมาก่อนเปลี่ยนทิศ
+    private Vector2 startPos;
+    private int patrolDirection = 1; // 1 = เดินไปขวา, -1 = เดินไปซ้าย
 
     void Start()
     {
-        player = GameObject.FindGameObjectWithTag("Player").transform; //หาผู้เล่น
+        player = GameObject.FindGameObjectWithTag("Player").transform; // หาผู้เล่น
+        startPos = transform.position; // บันทึกตำแหน่งเริ่มต้น
     }
 
     void Update()
@@ -31,9 +38,13 @@ public class Enemy : MonoBehaviour
         {
             AttackPlayer();
         }
-        else if (distanceToPlayer <= attackRange)
+        else if (distanceToPlayer <= detectionRange)
         {
             MoveTowardsPlayer();
+        }
+        else // ถ้าไม่อยู่ในระยะโจมตี ให้เดินไปมา
+        {
+            Patrol();
         }
 
         if (health <= 0)
@@ -58,6 +69,18 @@ public class Enemy : MonoBehaviour
         }
     }
 
+    void Patrol()
+    {
+        transform.Translate(Vector2.right * patrolDirection * moveSpeed * Time.deltaTime); // เดินไปตามทิศทาง
+
+        // ถ้าเดินไปไกลเกินระยะที่กำหนด ให้เปลี่ยนทิศทาง
+        if (Mathf.Abs(transform.position.x - startPos.x) >= patrolDistance)
+        {
+            patrolDirection *= -1; // เปลี่ยนทิศทาง
+            Flip(patrolDirection > 0);
+        }
+    }
+
     void AttackPlayer()
     {
         if (!isAttacking)
@@ -76,7 +99,7 @@ public class Enemy : MonoBehaviour
         isAttacking = false;
     }
 
-    public void DropItem() //เผื่อทำเรื่องดร็อป
+    public void DropItem() // เผื่อทำเรื่องดร็อป
     {
         if (dropItemPrefab != null)
         {
@@ -99,7 +122,7 @@ public class Enemy : MonoBehaviour
     {
         QuestTracker.Instance.EnemyKilled(gameObject.tag); // แจ้งให้ QuestTracker รู้ว่าศัตรูตายแล้ว
         Destroy(gameObject);
-        DropItem(); //เผื่อจะทำดร็อปไอเท็ม
+        DropItem(); // เผื่อจะทำดร็อปไอเท็ม
     }
 
     void Flip(bool facingRight)
