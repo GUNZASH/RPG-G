@@ -146,7 +146,7 @@ public class LevelUp : MonoBehaviour
     public int GetGold() => gold; // ฟังก์ชันเรียกทอง
 
     // ฟังก์ชันที่ใช้แปลง Rank Level เป็นชื่อแรงค์
-    string GetRankName()
+    public string GetRankName()
     {
         if (rankLevel >= 1 && rankLevel <= 4) return "Bronze";
         if (rankLevel >= 5 && rankLevel <= 9) return "Silver";

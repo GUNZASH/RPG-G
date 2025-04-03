@@ -14,6 +14,7 @@ public class QuestData
     public int requiredAmount; // จำนวนที่ต้องฆ่า
     public int rewardEXP; // ค่าประสบการณ์ที่ได้รับ
     public int rewardGold; // ทองที่ได้รับ
+    public int rankRequirement; // เพิ่มตัวแปร Rank Requirement (เงื่อนไขระดับแรงค์ในการรับเควส)
 }
 
 public class QuestBoard : MonoBehaviour
@@ -34,6 +35,7 @@ public class QuestBoard : MonoBehaviour
     private int selectedQuestIndex = -1; // เก็บค่า index ของเควสที่ถูกเลือก
 
     public QuestTracker questTracker; // เชื่อมกับระบบติดตามเควส
+    public LevelUp levelUp; // เชื่อมกับระบบ Rank ที่มีอยู่แล้ว
 
     private void Start()
     {
@@ -76,6 +78,17 @@ public class QuestBoard : MonoBehaviour
         }
     }
 
+    // เพิ่มฟังก์ชันที่ใช้แปลง rankRequirement เป็นชื่อ Rank
+    public string GetQuestRankName(int rankRequirement)
+    {
+        if (rankRequirement >= 1 && rankRequirement <= 4) return "Bronze";
+        if (rankRequirement >= 5 && rankRequirement <= 9) return "Silver";
+        if (rankRequirement >= 10 && rankRequirement <= 14) return "Gold";
+        if (rankRequirement >= 15 && rankRequirement <= 19) return "Platinum";
+        if (rankRequirement >= 20) return "Diamond";
+        return "Bronze"; // ถ้าไม่ตรงกับเงื่อนไขใดๆ ให้แสดง Bronze
+    }
+
     private void ShowQuestDetail(int index)
     {
         if (index >= 0 && index < questDataList.Count)
@@ -86,6 +99,21 @@ public class QuestBoard : MonoBehaviour
             questNameText.text = quest.questName;
             questDescriptionText.text = quest.description;
             questDetailImage.sprite = quest.questImage;
+
+            // แสดง Rank ของเควสจาก rankRequirement
+            string questRank = GetQuestRankName(quest.rankRequirement); // ใช้ rankRequirement ของเควส
+            questDescriptionText.text += "\nRequired Rank: " + questRank;
+
+            // ตรวจสอบว่า Rank ของผู้เล่นถึงระดับที่ต้องการสำหรับเควสนี้หรือไม่
+            if (levelUp.rankLevel >= quest.rankRequirement)
+            {
+                acceptButton.interactable = true; // เปิดปุ่มรับเควส
+            }
+            else
+            {
+                acceptButton.interactable = false; // ปิดปุ่มรับเควส
+                questDescriptionText.text += "\nYour rank is too low to accept this quest!";
+            }
 
             questDetailPanel.SetActive(true);
         }

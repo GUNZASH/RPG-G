@@ -3581,7 +3581,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &650763578
 RectTransform:
   m_ObjectHideFlags: 0
@@ -7153,6 +7153,7 @@ MonoBehaviour:
     requiredAmount: 1
     rewardEXP: 1000
     rewardGold: 1000
+    rankRequirement: 1
   - questName: Slime
     description: Kill Slime
     questImage: {fileID: 0}
@@ -7160,6 +7161,7 @@ MonoBehaviour:
     requiredAmount: 1
     rewardEXP: 3000
     rewardGold: 1000
+    rankRequirement: 9
   - questName: Bird
     description: Kill 10 Bird
     questImage: {fileID: 0}
@@ -7167,6 +7169,7 @@ MonoBehaviour:
     requiredAmount: 0
     rewardEXP: 0
     rewardGold: 0
+    rankRequirement: 0
   - questName: Chicken
     description: Kill 10 Chicken
     questImage: {fileID: 0}
@@ -7174,6 +7177,7 @@ MonoBehaviour:
     requiredAmount: 0
     rewardEXP: 0
     rewardGold: 0
+    rankRequirement: 0
   questDetailPanel: {fileID: 1749376514}
   questNameText: {fileID: 1891415671}
   questDescriptionText: {fileID: 117774857}
@@ -7181,6 +7185,7 @@ MonoBehaviour:
   acceptButton: {fileID: 1839120361}
   cancelButton: {fileID: 2102188551}
   questTracker: {fileID: 0}
+  levelUp: {fileID: 316879687}
 --- !u!1 &1376857441
 GameObject:
   m_ObjectHideFlags: 0
@@ -11658,6 +11663,7 @@ SceneRoots:
   m_Roots:
   - {fileID: 519420032}
   - {fileID: 1034604740}
+  - {fileID: 1367501962}
   - {fileID: 1669643367}
   - {fileID: 974499439}
   - {fileID: 1669095078}
@@ -11670,7 +11676,6 @@ SceneRoots:
   - {fileID: 860543178}
   - {fileID: 573257717}
   - {fileID: 1879502780}
-  - {fileID: 1367501962}
   - {fileID: 1157246513}
   - {fileID: 222662522}
   - {fileID: 1426711252136383430}
