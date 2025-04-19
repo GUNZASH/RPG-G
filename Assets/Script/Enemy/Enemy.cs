@@ -20,12 +20,16 @@ public class Enemy : MonoBehaviour
     public Transform dropPoint; // จุดที่ไอเท็มจะตก เผื่อจะทำ
 
     [Header("Patrol Settings")]
-    public float patrolDistance = 3f; // ระยะทางที่เดินไปมาก่อนเปลี่ยนทิศ
+    public float patrolDistance = 3f;
     private Vector2 startPos;
     private int patrolDirection = 1; // 1 = เดินไปขวา, -1 = เดินไปซ้าย
 
+    private Animator animator;
+    private bool isDead = false; 
+
     void Start()
     {
+        animator = GetComponent<Animator>();
         player = GameObject.FindGameObjectWithTag("Player").transform; // หาผู้เล่น
         startPos = transform.position; // บันทึกตำแหน่งเริ่มต้น
     }
@@ -47,7 +51,7 @@ public class Enemy : MonoBehaviour
             Patrol();
         }
 
-        if (health <= 0)
+        if (!isDead && health <= 0)
         {
             Die();
         }
@@ -55,6 +59,8 @@ public class Enemy : MonoBehaviour
 
     void MoveTowardsPlayer()
     {
+        animator.SetBool("isWalking", true);
+
         Vector2 direction = (player.position - transform.position).normalized;
         transform.position = Vector2.MoveTowards(transform.position, player.position, moveSpeed * Time.deltaTime);
 
@@ -71,6 +77,8 @@ public class Enemy : MonoBehaviour
 
     void Patrol()
     {
+        animator.SetBool("isWalking", true);
+
         transform.Translate(Vector2.right * patrolDirection * moveSpeed * Time.deltaTime); // เดินไปตามทิศทาง
 
         // ถ้าเดินไปไกลเกินระยะที่กำหนด ให้เปลี่ยนทิศทาง
@@ -86,6 +94,7 @@ public class Enemy : MonoBehaviour
         if (!isAttacking)
         {
             isAttacking = true;
+            animator.SetTrigger("attack");
             nextAttackTime = Time.time + attackCooldown;
 
             player.GetComponent<PlayerHealth>().TakeDamage(attackDamage);
@@ -96,6 +105,7 @@ public class Enemy : MonoBehaviour
 
     void ResetAttack()
     {
+        animator.SetBool("isWalking", false);
         isAttacking = false;
     }
 
@@ -120,15 +130,37 @@ public class Enemy : MonoBehaviour
 
     void Die()
     {
-        QuestTracker.Instance.EnemyKilled(gameObject.tag); // แจ้งให้ QuestTracker รู้ว่าศัตรูตายแล้ว
-        Destroy(gameObject);
-        DropItem(); // เผื่อจะทำดร็อปไอเท็ม
+        isDead = true;
+        animator.SetTrigger("die");
+
+        GetComponent<Collider2D>().enabled = false;
+
+        Rigidbody2D rb = GetComponent<Rigidbody2D>();
+        if (rb != null)
+        {
+            rb.velocity = Vector2.zero;
+            rb.simulated = false;
+        }
+
+        this.enabled = false;
+        Invoke(nameof(HandleDeath), 1.5f);
+
+        //QuestTracker.Instance.EnemyKilled(gameObject.tag); // แจ้งให้ QuestTracker รู้ว่าศัตรูตายแล้ว
+        //Destroy(gameObject);
+        //DropItem(); // เผื่อจะทำดร็อปไอเท็ม
     }
 
-    void Flip(bool facingRight)
+    void HandleDeath()
+    {
+        QuestTracker.Instance.EnemyKilled(gameObject.tag);
+        DropItem();
+        Destroy(gameObject);
+    }
+
+    void Flip(bool facingLeft)
     {
         Vector3 scale = transform.localScale;
-        scale.x = facingRight ? Mathf.Abs(scale.x) : -Mathf.Abs(scale.x);
+        scale.x = facingLeft ? -Mathf.Abs(scale.x) : Mathf.Abs(scale.x);
         transform.localScale = scale;
     }
 }

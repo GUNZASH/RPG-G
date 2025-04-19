@@ -80,5 +80,37 @@ public class QuestTracker : MonoBehaviour
 
             questListText.text += $"{questName}: {progress}/{target}\n";
         }
+
+    }
+    public bool HasQuest(string enemyTag)
+    {
+        return activeQuests.ContainsKey(enemyTag);
+    }
+
+    public int GetProgress(string enemyTag)
+    {
+        if (questProgress.ContainsKey(enemyTag))
+            return questProgress[enemyTag];
+        return 0;
+    }
+
+    public void AcceptQuest(string enemyTag, QuestData quest, int progress)
+    {
+        if (!activeQuests.ContainsKey(enemyTag))
+        {
+            activeQuests.Add(enemyTag, quest);
+            questProgress[enemyTag] = progress;
+
+            questTrackerPanel.SetActive(true);
+            UpdateQuestList();
+        }
+    }
+
+    public void ClearAll()
+    {
+        activeQuests.Clear();
+        questProgress.Clear();
+        questListText.text = "";
+        questTrackerPanel.SetActive(false);
     }
 }

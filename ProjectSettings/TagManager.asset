@@ -8,6 +8,9 @@ TagManager:
   - Wall
   - QuestTest
   - Slime
+  - Mushroom
+  - Goblin
+  - Golem
   layers:
   - Default
   - TransparentFX

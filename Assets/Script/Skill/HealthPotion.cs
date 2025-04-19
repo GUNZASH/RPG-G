@@ -26,8 +26,8 @@ public class HealthPotion : MonoBehaviour
     {
         if (playerHealth.potionCount > 0 && !isCooldown)
         {
-            playerHealth.health = Mathf.Min(playerHealth.health + healAmount, 100f); // ฮีลและไม่ให้เกิน 100
-            playerHealth.potionCount--; // ลดจำนวนยา
+            playerHealth.Heal(healAmount); // ใช้ Heal() โดยตรง
+            playerHealth.potionCount--;
             UpdatePotionUI();
             StartCoroutine(CooldownCoroutine());
         }

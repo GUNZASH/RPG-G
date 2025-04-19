@@ -8,10 +8,23 @@ public class EXP : MonoBehaviour
 
     void OnDestroy()
     {
-        LevelUp playerLevel = GameObject.FindGameObjectWithTag("Player").GetComponent<LevelUp>();
-        if (playerLevel != null)
+        GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
+
+        if (playerObject != null)
         {
-            playerLevel.GainEXP(expReward);
+            LevelUp playerLevel = playerObject.GetComponent<LevelUp>();
+            if (playerLevel != null)
+            {
+                playerLevel.GainEXP(expReward);
+            }
+            else
+            {
+                Debug.LogWarning("LevelUp component not found on Player!");
+            }
+        }
+        else
+        {
+            Debug.LogWarning("Player not found with tag 'Player'!");
         }
     }
 }

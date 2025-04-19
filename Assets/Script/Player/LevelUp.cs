@@ -2,18 +2,21 @@
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.SceneManagement;
+
 
 public class LevelUp : MonoBehaviour
 {
-    public static LevelUp Instance; // เพิ่ม Instance
+    public static LevelUp Instance;
 
     public int level = 1;
     public int exp = 0;
     public int expToNextLevel = 100;
     public int upgradePoints = 0;
 
-    public int baseExp = 100; // EXP ที่ต้องใช้ในการอัปเลเวล
-    public float expMultiplier = 1.2f; // คูณ EXP ที่ต้องใช้เพิ่มขึ้นทุกเลเวล
+    public int baseExp = 100; 
+    public float expMultiplier = 1.2f; 
 
     public int ATK = 1;
     public int VIT = 1;
@@ -23,17 +26,26 @@ public class LevelUp : MonoBehaviour
     public int bonusVIT = 0;
     public int bonusAGI = 0;
 
-    public int gold = 0; // เพิ่มตัวแปรทอง
+    public int gold = 0; 
 
-    public int rankEXP = 0; // เพิ่มตัวแปร Rank EXP
-    public int rankLevel = 1; // เพิ่มตัวแปร Rank Level
-    public int rankEXPToNext = 500; // จำนวน Rank EXP ที่ต้องใช้ในการเลื่อนระดับ Rank
+    public int rankEXP = 0; 
+    public int rankLevel = 1; 
+    public int rankEXPToNext = 500;
 
-    public TMP_Text rankText; // TMP_Text ที่ใช้แสดง Rank
-    public TMP_Text levelUpText; // ข้อความ "Level Up!" ที่จะลอยขึ้นแล้วจางหายไป
+    public TMP_Text rankText;
+    public TMP_Text levelUpText; 
 
     private PlayerController playerController;
     private PlayerHealth playerHealth;
+
+    public TextMeshProUGUI goldText;
+    public TextMeshProUGUI levelText;
+    public TextMeshProUGUI upgradePointsText;
+
+    public Image fadeImage; // UI Image สีดำ Fullscreen ที่มี alpha = 0
+    public string nextSceneName = "CreditScene";
+    private bool isTransitioning = false;
+
 
     private void Awake()
     {
@@ -60,9 +72,59 @@ public class LevelUp : MonoBehaviour
         if (rankText != null)
         {
             string rankName = GetRankName(); // รับชื่อแรงค์
-            rankText.text = "Rank: " + rankName + " (" + rankEXP + "/" + rankEXPToNext.ToString() + ")";
+            rankText.text = "Rank: " + rankName;
+        }
+        goldText.text = " : " + gold.ToString("N0"); // N0 = ตัวเลขไม่เอาจุดทศนิยม, มี comma
+
+        if (levelText != null)
+        {
+            levelText.text = "Lv. " + level;
+        }
+
+        if (upgradePointsText != null)
+        {
+            upgradePointsText.text = "Upgrade Points: " + upgradePoints;
+        }
+        if (!isTransitioning && rankLevel >= 20)
+        {
+            StartCoroutine(FadeAndLoadScene());
         }
     }
+
+    IEnumerator FadeAndLoadScene()
+    {
+        isTransitioning = true;
+
+        float fadeDuration = 2f;
+        float t = 0f;
+
+        // เริ่มที่สีขาว แต่โปร่งใส
+        Color color = Color.white;
+        color.a = 0f;
+        fadeImage.color = color;
+        fadeImage.gameObject.SetActive(true); // เผื่อไว้ว่า Image อาจถูกซ่อนไว้
+
+        // ✅ เฟดสีขาวขึ้นเรื่อยๆ
+        while (t < fadeDuration)
+        {
+            t += Time.deltaTime;
+            float alpha = Mathf.Lerp(0f, 1f, t / fadeDuration);
+            fadeImage.color = new Color(1f, 1f, 1f, alpha);
+            yield return null;
+        }
+
+        // ✅ ให้ขาวสนิทแน่นอน
+        fadeImage.color = new Color(1f, 1f, 1f, 1f);
+
+        // ✅ รอ 1 เฟรมเพื่อให้ Unity วาดเฟรมสุดท้าย
+        yield return new WaitForEndOfFrame();
+
+        // ✅ รออีกนิดให้ผู้เล่นได้เห็นจอขาวก่อนย้าย
+        yield return new WaitForSecondsRealtime(0.5f);
+
+        SceneManager.LoadScene(nextSceneName);
+    }
+
 
     public void GainEXP(int amount)
     {
@@ -86,10 +148,10 @@ public class LevelUp : MonoBehaviour
             expToNextLevel = Mathf.RoundToInt(baseExp * Mathf.Pow(expMultiplier, level - 1));
 
             // แจก Skill Point ทุก ๆ 5 เลเวล
-            if (level % 5 == 0)
-            {
-                SkillSystem.Instance.GainSkillPoint(1);
-            }
+            //if (level % 5 == 0)
+            //{
+                //SkillSystem.Instance.GainSkillPoint(1);
+            //}
 
             // แสดงข้อความ Level Up
             StartCoroutine(ShowLevelUpText());
@@ -116,7 +178,7 @@ public class LevelUp : MonoBehaviour
                 case "ATK":
                     ATK++;
                     bonusATK++;
-                    playerController.attackDamage += 1; // เพิ่ม attackDamage ใน PlayerController
+                    playerController.attackDamage += 5; // เพิ่ม attackDamage ใน PlayerController
                     break;
                 case "VIT":
                     VIT++;

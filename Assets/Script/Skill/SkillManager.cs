@@ -14,6 +14,8 @@ public class SkillManager : MonoBehaviour
         public float duration;           // ระยะเวลาของบัฟ (ถ้ามี)
         public int requiredLevel;        // เลเวลที่ต้องการปลดล็อค
         public string skillType;         // ชนิดของสกิล ("buffDamage", "heal", "warp", "buffAuraBlade")
+        public AudioClip soundEffect;
+        public AudioSource audioSource;
     }
 
     public Skill[] skills;
@@ -24,6 +26,8 @@ public class SkillManager : MonoBehaviour
     public PlayerController playerController; // อ้างอิงระบบโจมตี
 
     private bool[] isCooldown;
+
+
 
     void Start()
     {
@@ -66,7 +70,7 @@ public class SkillManager : MonoBehaviour
         if (levelUp.level < skills[index].requiredLevel)
         {
             Debug.Log("Level not high enough!");
-            StartCoroutine(ShowMessage("You are not ready to use"));
+            StartCoroutine(ShowMessage("Can't Use That"));
             return;
         }
 
@@ -117,6 +121,11 @@ public class SkillManager : MonoBehaviour
         {
             skill.effect.SetActive(true);
             StartCoroutine(HideEffectAfter(skill.effect, skill.duration));
+        }
+
+        if (skill.soundEffect != null && skill.audioSource != null)
+        {
+            skill.audioSource.PlayOneShot(skill.soundEffect);
         }
     }
 

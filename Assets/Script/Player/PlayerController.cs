@@ -30,12 +30,20 @@ public class PlayerController : MonoBehaviour
     public LayerMask enemyLayer;
     public float attackDamage = 10f; //ความเสียหาย
 
+    [Header("เอฟเฟกต์ตอนโจมตี")]
+    public GameObject attackEffectObject; // ลากอ็อบเจกต์จาก Inspector
+    public float effectDuration = 0.3f;   // เวลาที่แสดงเอฟเฟกต์
+    public float attackEffectDelay = 0.1f;
+
     private Rigidbody2D rb;
     private bool isGrounded; //เช็คว่าอยู่บนพื้นมั้ย
     public Transform groundCheck;
     public LayerMask groundLayer;
 
     public bool isAuraBladeActive = false; // เช็คว่าบัฟออร่าดาบทำงานไหม
+
+    public AudioSource audioSource;      // ใส่ AudioSource ที่ใช้เล่นเสียง
+    public AudioClip attackSound;
 
     private Animator anim;
 
@@ -131,6 +139,16 @@ public class PlayerController : MonoBehaviour
         anim.SetTrigger("Attack");
         Debug.Log("Player Attack!");
 
+        if (attackSound != null && audioSource != null)
+        {
+            audioSource.PlayOneShot(attackSound);
+        }
+
+        if (attackEffectObject != null)
+        {
+            Invoke("ShowAttackEffect", attackEffectDelay);
+        }
+
         //ตรวจศัตรูที่อยู่ในระยะ
         Collider2D[] enemiesToDamage = Physics2D.OverlapCircleAll(attackPoint.position, attackRange, enemyLayer);
 
@@ -142,6 +160,20 @@ public class PlayerController : MonoBehaviour
 
         Invoke("ResetAttack", 0.5f);
     }
+
+    void ShowAttackEffect()
+    {
+        attackEffectObject.SetActive(true);
+        Invoke("HideAttackEffect", effectDuration);
+    }
+
+    void HideAttackEffect()
+    {
+        if (attackEffectObject != null)
+            attackEffectObject.SetActive(false);
+    }
+
+
     void OnTriggerEnter(Collider other)
     {
         if (isAuraBladeActive && ((1 << other.gameObject.layer) & enemyLayer) != 0)

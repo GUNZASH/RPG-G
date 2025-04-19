@@ -9,6 +9,8 @@ public class TeleportPoint : MonoBehaviour
     public GameObject loadingPanel; // Panel สีดำ
     public TextMeshProUGUI loadingText; // ข้อความ Loading . . .
 
+    public Image[] imagesToHide;
+
     private bool canTeleport = false; // ตรวจสอบว่าผู้เล่นอยู่ในจุดเทเลพอร์ตหรือไม่
     private GameObject player; // อ้างอิงถึงตัวผู้เล่น
 
@@ -47,11 +49,21 @@ public class TeleportPoint : MonoBehaviour
         loadingPanel.SetActive(true); // เปิดจอดำ
         loadingText.text = "Loading . . ."; // แสดงข้อความ Loading
 
+        foreach (Image img in imagesToHide)
+        {
+            img.gameObject.SetActive(false);
+        }
+
         float waitTime = Random.Range(2f, 4f); // สุ่มรอ 2-4 วินาที
         yield return new WaitForSeconds(1f); // แสดงจอดำก่อนย้ายตำแหน่ง
         player.transform.position = teleportDestination.position; // ย้ายผู้เล่นไปตำแหน่งใหม่
         yield return new WaitForSeconds(waitTime - 1f); // รอเวลาที่เหลือ
 
-        loadingPanel.SetActive(false); // ปิดจอดำ
+        loadingPanel.SetActive(false); //
+                                       // 
+        foreach (Image img in imagesToHide)
+        {
+            img.gameObject.SetActive(true);
+        }
     }
 }
